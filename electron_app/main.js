@@ -6,9 +6,13 @@ const createWindow = () => {
         height: 600
     })
 
-    win.loadURL('http://localhost:8000/')
+    win.loadURL('http://localhost:8000/ganhuo')
 }
 
 app.whenReady().then(() => {
     createWindow()
+})
+
+app.on('window-all-closed', () => {
+    app.quit()
 })
