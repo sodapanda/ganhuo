@@ -6,9 +6,10 @@
   "keywords": [
     "gatsby"
   ],
+  "main": "main.js",
   "scripts": {
     "develop": "gatsby develop",
-    "start": "gatsby develop",
+    "start": "electron .",
     "build": "gatsby build",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
@@ -28,6 +29,7 @@
     "@types/react": "^18.2.36",
     "@types/react-dom": "^18.2.14",
     "autoprefixer": "^10.4.17",
+    "electron": "^29.1.0",
     "gatsby-plugin-postcss": "^6.13.1",
     "postcss": "^8.4.35",
     "postcss-preset-mantine": "1.13.0",
