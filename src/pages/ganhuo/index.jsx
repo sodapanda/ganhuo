@@ -2,6 +2,7 @@ import React, { useRef, useReducer, useEffect } from "react";
 import { Stack, Text, ActionIcon, Progress, Indicator } from '@mantine/core';
 import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-react';
 import { Calendar } from '@mantine/dates';
+import moment from 'moment';
 
 export default function Ganhuo() {
     const lastTime = useRef(0)
@@ -13,6 +14,12 @@ export default function Ganhuo() {
 
             stopPolling()
         })
+
+        const todayDuration = getTodayDuration();
+        if (todayDuration > 0) {
+            dispatch({ type: 'setDuration', duration: todayDuration })
+        }
+
     }, [])
 
     const initState = {
@@ -35,12 +42,16 @@ export default function Ganhuo() {
                 console.log(`上次:${lastTime.current} 本次:${action.nowUptime} 差:${action.nowUptime - lastTime.current} 上次累计:${state.duration} 本次累积:${state.duration + action.nowUptime - lastTime.current}`)
                 const aDuration = action.nowUptime - lastTime.current
                 lastTime.current = action.nowUptime
-                return { ...state, duration: state.duration + aDuration }
+                const newDuration = getTodayDuration() + aDuration
+                saveTodayDuration(newDuration)
+                return { ...state, duration: newDuration }
             } else {
                 lastTime.current = action.nowUptime
                 notifyToWork()
                 return state
             }
+        } else if (action.type === 'setDuration') {
+            return { ...state, duration: action.duration }
         }
         return state
     }, initState)
@@ -71,6 +82,52 @@ export default function Ganhuo() {
 
     function notifyToWork() {
 
+    }
+
+    function checkInDoneApi() {
+
+    }
+
+    function getDataBase() {
+        let dbStr = localStorage.getItem('ganhuo')
+        if (!dbStr) {
+            dbStr = '[]'
+        }
+        return JSON.parse(dbStr)
+    }
+
+    function setDataBase(data) {
+        const dbStr = JSON.stringify(data)
+        localStorage.setItem('ganhuo', dbStr)
+    }
+
+    function dateToStr(date) {
+        const formattedDate = moment(date).format('DD/MM/YYYY');
+        return formattedDate
+    }
+
+    function getTodayDuration() {
+        const dataBase = getDataBase()
+        const today = dateToStr(new Date())
+        const todayState = dataBase.find(item => item.date === today)
+        if (todayState) {
+            return todayState.duration
+        }
+        return 0
+    }
+
+    function saveTodayDuration(newDuration) {
+        const database = getDataBase()
+        const today = dateToStr(new Date())
+        const todayState = database.find(item => item.date === today)
+
+        if (todayState) {
+            todayState.duration = newDuration
+        } else {
+            database.push({ date: today, duration: newDuration })
+        }
+
+        setDataBase(database)
     }
 
     return (
