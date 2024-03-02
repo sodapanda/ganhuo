@@ -26,7 +26,8 @@ export default function Ganhuo() {
         duration: 0,
         persentage: 0,
         availablePersentage: 0,
-        isPolling: false
+        isPolling: false,
+        displayDuration: '00:00:00'
     }
 
     const [mState, dispatch] = useReducer((state, action) => {
@@ -37,21 +38,27 @@ export default function Ganhuo() {
                 return { ...state, isPolling: false }
             }
         } else if (action.type === 'tik') {
-            if (isUserWorking()) {
+            if (action.isWorking) {
                 console.log(action.nowUptime)
                 console.log(`上次:${lastTime.current} 本次:${action.nowUptime} 差:${action.nowUptime - lastTime.current} 上次累计:${state.duration} 本次累积:${state.duration + action.nowUptime - lastTime.current}`)
                 const aDuration = action.nowUptime - lastTime.current
                 lastTime.current = action.nowUptime
                 const newDuration = getTodayDuration() + aDuration
                 saveTodayDuration(newDuration)
-                return { ...state, duration: newDuration }
+                const display = moment.utc(newDuration * 1000).format('HH:mm:ss');
+
+                if (newDuration >= 8 * 60 * 60) {
+                    callWorkDoneApi()
+                }
+                return { ...state, duration: newDuration, displayDuration: display }
             } else {
                 lastTime.current = action.nowUptime
                 notifyToWork()
                 return state
             }
         } else if (action.type === 'setDuration') {
-            return { ...state, duration: action.duration }
+            const display = moment.utc(action.duration * 1000).format('HH:mm:ss');
+            return { ...state, duration: action.duration, displayDuration: display }
         }
         return state
     }, initState)
@@ -62,7 +69,9 @@ export default function Ganhuo() {
 
         mTimerId.current = setInterval(async () => {
             const nowTime = await window.app.uptime();
-            dispatch({ type: 'tik', nowUptime: nowTime })
+            const working = await window.app.isWorking();
+            console.log(`干活:${working}`)
+            dispatch({ type: 'tik', nowUptime: nowTime, isWorking: working })
         }, 1000)
     }
 
@@ -76,16 +85,13 @@ export default function Ganhuo() {
         }
     }
 
-    function isUserWorking() {
-        return true;
-    }
-
     function notifyToWork() {
-
+        new window.Notification('干活', { body: '干活啊' })
+            .onclick = () => { console.log('clicked') }
     }
 
-    function checkInDoneApi() {
-
+    function callWorkDoneApi() {
+        // todo 检查是不是调用过了 不用重复调用
     }
 
     function getDataBase() {
@@ -98,6 +104,7 @@ export default function Ganhuo() {
 
     function setDataBase(data) {
         const dbStr = JSON.stringify(data)
+        console.log('保存调用')
         localStorage.setItem('ganhuo', dbStr)
     }
 
@@ -133,7 +140,7 @@ export default function Ganhuo() {
     return (
         <div className="mx-10" >
             <Stack>
-                <Text size="xl" fw={700} c="blue" className="mt-8">{`${mState.duration}秒`}</Text>
+                <Text size="xl" fw={700} c="blue" className="mt-8">{mState.displayDuration}</Text>
                 <div className="flex w-full items-center">
                     {!mState.isPolling ?
                         <ActionIcon variant="filled" aria-label="start" onClick={() => { startPolling() }}>
