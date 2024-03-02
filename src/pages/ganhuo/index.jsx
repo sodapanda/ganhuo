@@ -159,8 +159,15 @@ export default function Ganhuo() {
                     static
                     renderDay={(date) => {
                         const day = date.getDate();
+                        const dateStr = dateToStr(date)
+                        const dbDate = getDataBase()
+                        const thisDate = dbDate.find(item => item.date === dateStr)
+                        let isDone = false
+                        if (thisDate) {
+                            isDone = thisDate.duration >= 8 * 60 * 60
+                        }
                         return (
-                            <Indicator size={6} color="red" offset={-2} disabled={day !== 16}>
+                            <Indicator size={6} color="green" offset={-2} disabled={!isDone}>
                                 <div>{day}</div>
                             </Indicator>
                         );
