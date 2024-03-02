@@ -50,7 +50,10 @@ export default function Ganhuo() {
                 if (newDuration >= 8 * 60 * 60) {
                     callWorkDoneApi()
                 }
-                return { ...state, duration: newDuration, displayDuration: display }
+
+                const progress = (newDuration / (8 * 60 * 60)) * 100
+                const leftProgress = leftTimeProgress()
+                return { ...state, duration: newDuration, displayDuration: display, persentage: progress, availablePersentage: leftProgress }
             } else {
                 lastTime.current = action.nowUptime
                 notifyToWork()
@@ -58,7 +61,10 @@ export default function Ganhuo() {
             }
         } else if (action.type === 'setDuration') {
             const display = moment.utc(action.duration * 1000).format('HH:mm:ss');
-            return { ...state, duration: action.duration, displayDuration: display }
+            const progress = (action.duration / (8 * 60 * 60)) * 100
+            const leftProgress = leftTimeProgress()
+            console.log(`left ${leftProgress}`)
+            return { ...state, duration: action.duration, displayDuration: display, persentage: progress, availablePersentage: leftProgress }
         }
         return state
     }, initState)
@@ -137,6 +143,15 @@ export default function Ganhuo() {
         setDataBase(database)
     }
 
+    function leftTimeProgress() {
+        const currentTime = moment();
+        const tomorrowMidnight = moment().endOf('day').add(1, 'second');
+        const remainingSeconds = tomorrowMidnight.diff(currentTime, 'seconds');
+        console.log(`剩余${remainingSeconds}秒`)
+
+        return (remainingSeconds / (8 * 60 * 60)) * 100
+    }
+
     return (
         <div className="mx-10" >
             <Stack>
@@ -150,8 +165,8 @@ export default function Ganhuo() {
                             <IconPlayerPause style={{ width: '70%', height: '70%' }} stroke={1.5} />
                         </ActionIcon>}
                     <Progress.Root size="xl" className="flex-grow w-fit ml-4">
-                        <Progress.Section value={35} color="cyan" />
-                        <Progress.Section value={28} color="pink" />
+                        <Progress.Section value={mState.persentage} color="cyan" />
+                        <Progress.Section value={100 - mState.persentage} color="pink" />
                     </Progress.Root>
                 </div>
 
