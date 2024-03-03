@@ -184,7 +184,7 @@ export default function Ganhuo() {
                         </ActionIcon>}
                     <Progress.Root size="xl" className="flex-grow w-fit ml-4">
                         <Progress.Section value={mState.persentage} color="cyan" />
-                        <Progress.Section value={100 - mState.persentage} color="pink" />
+                        <Progress.Section value={mState.availablePersentage} color="pink" />
                     </Progress.Root>
                 </div>
 
