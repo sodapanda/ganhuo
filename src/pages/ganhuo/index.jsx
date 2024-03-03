@@ -16,10 +16,7 @@ export default function Ganhuo() {
         })
 
         const todayDuration = getTodayDuration();
-        if (todayDuration > 0) {
-            dispatch({ type: 'setDuration', duration: todayDuration })
-        }
-
+        dispatch({ type: 'setDuration', duration: todayDuration })
     }, [])
 
     const initState = {
@@ -27,7 +24,8 @@ export default function Ganhuo() {
         persentage: 0,
         availablePersentage: 0,
         isPolling: false,
-        displayDuration: '00:00:00'
+        displayDuration: '00:00:00',
+        doneDateList: []
     }
 
     const [mState, dispatch] = useReducer((state, action) => {
@@ -39,8 +37,8 @@ export default function Ganhuo() {
             }
         } else if (action.type === 'tik') {
             if (action.isWorking) {
-                console.log(action.nowUptime)
-                console.log(`上次:${lastTime.current} 本次:${action.nowUptime} 差:${action.nowUptime - lastTime.current} 上次累计:${state.duration} 本次累积:${state.duration + action.nowUptime - lastTime.current}`)
+                // console.log(action.nowUptime)
+                // console.log(`上次:${lastTime.current} 本次:${action.nowUptime} 差:${action.nowUptime - lastTime.current} 上次累计:${state.duration} 本次累积:${state.duration + action.nowUptime - lastTime.current}`)
                 const aDuration = action.nowUptime - lastTime.current
                 lastTime.current = action.nowUptime
                 const newDuration = getTodayDuration() + aDuration
@@ -64,26 +62,32 @@ export default function Ganhuo() {
             const progress = (action.duration / (8 * 60 * 60)) * 100
             const leftProgress = leftTimeProgress()
             console.log(`left ${leftProgress}`)
-            return { ...state, duration: action.duration, displayDuration: display, persentage: progress, availablePersentage: leftProgress }
+
+            const dbDate = getDataBase()
+            const doneList = dbDate.filter(item => item.duration >= 8 * 60 * 60).map(item => item.date)
+            console.log(`done list is ${doneList}`)
+
+            return { ...state, duration: action.duration, displayDuration: display, persentage: progress, availablePersentage: leftProgress, doneDateList: doneList }
         }
         return state
     }, initState)
 
     async function startPolling() {
+        console.log('click')
         dispatch({ type: 'switch', mSwitch: 'on' })
         lastTime.current = await window.app.uptime();
 
         mTimerId.current = setInterval(async () => {
             const nowTime = await window.app.uptime();
             const working = await window.app.isWorking();
-            console.log(`干活:${working}`)
+            // console.log(`干活:${working}`)
             dispatch({ type: 'tik', nowUptime: nowTime, isWorking: working })
         }, 1000)
     }
 
     function stopPolling() {
         dispatch({ type: 'switch', mSwitch: 'off' })
-        lastTime.current = 0
+        // lastTime.current = 0
 
         if (mTimerId.current !== 0) {
             clearInterval(mTimerId.current)
@@ -128,7 +132,7 @@ export default function Ganhuo() {
 
     function setDataBase(data) {
         const dbStr = JSON.stringify(data)
-        console.log('保存调用')
+        // console.log('保存调用')
         localStorage.setItem('ganhuo', dbStr)
     }
 
@@ -165,7 +169,7 @@ export default function Ganhuo() {
         const currentTime = moment();
         const tomorrowMidnight = moment().endOf('day').add(1, 'second');
         const remainingSeconds = tomorrowMidnight.diff(currentTime, 'seconds');
-        console.log(`剩余${remainingSeconds}秒`)
+        // console.log(`剩余${remainingSeconds}秒`)
 
         return (remainingSeconds / (8 * 60 * 60)) * 100
     }
@@ -193,11 +197,11 @@ export default function Ganhuo() {
                     renderDay={(date) => {
                         const day = date.getDate();
                         const dateStr = dateToStr(date)
-                        const dbDate = getDataBase()
-                        const thisDate = dbDate.find(item => item.date === dateStr)
+                        const thisDate = mState.doneDateList.find(item => item === dateStr)
+                        // console.log(`日历 ${dateStr} ${mState.doneDateList} ${thisDate}`)
                         let isDone = false
                         if (thisDate) {
-                            isDone = thisDate.duration >= 8 * 60 * 60
+                            isDone = true
                         }
                         return (
                             <Indicator size={6} color="green" offset={-2} disabled={!isDone}>

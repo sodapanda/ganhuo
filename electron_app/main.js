@@ -9,7 +9,7 @@ const badWebsite = ['youtube.com', 'bilibili.com', 'twitter.com', 'xiaohongshu.c
 const createWindow = () => {
     const win = new BrowserWindow({
         width: 400,
-        height: 600,
+        height: 500,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js')
         }
@@ -26,7 +26,7 @@ const createWindow = () => {
     })
 
     win.loadURL('http://localhost:8000/ganhuo')
-    win.webContents.openDevTools()
+    // win.webContents.openDevTools()
 }
 
 app.whenReady().then(() => {
