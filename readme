@@ -1,0 +1,4 @@
+electron 自带服务器 根目录是 electron_app/public
+执行 ./build.sh 就生成静态html文件复制到服务求根目录下
+打包electron app 在 electron_app目录执行 npm run make
+生成在 out目录中

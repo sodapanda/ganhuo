@@ -82,7 +82,7 @@ export default function Ganhuo() {
             const working = await window.app.isWorking();
             // console.log(`干活:${working}`)
             dispatch({ type: 'tik', nowUptime: nowTime, isWorking: working })
-        }, 1000)
+        }, 3000)
     }
 
     function stopPolling() {
@@ -96,8 +96,8 @@ export default function Ganhuo() {
     }
 
     function notifyToWork() {
-        new window.Notification('干活', { body: '干活啊' })
-            .onclick = () => { console.log('clicked') }
+        const beepAudio = new Audio('http://localhost:6363/beep.mp3')
+        beepAudio.play()
     }
 
     function callWorkDoneApi() {

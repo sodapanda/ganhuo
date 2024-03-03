@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, powerMonitor } = require('electron')
 const os = require('os');
 const path = require('node:path')
 const activeWindow = require('active-win');
+const express = require('express');
 
 const badApp = ['com.tencent.xinWeChat', 'com.tdesktop.Telegram', 'com.colliderli.iina', 'com.apple.finder']
 const badWebsite = ['youtube.com', 'bilibili.com', 'twitter.com', 'xiaohongshu.com', 'zhihu.com', 'missav.com']
@@ -25,7 +26,7 @@ const createWindow = () => {
         console.log('unlock-screen')
     })
 
-    win.loadURL('http://localhost:8000/ganhuo')
+    win.loadURL('http://localhost:6363/ganhuo')
     // win.webContents.openDevTools()
 }
 
@@ -55,6 +56,15 @@ app.whenReady().then(() => {
             return !isBadApp
         }
     })
+
+    const server = express();
+
+    server.use(express.static(path.join(__dirname, 'public')));
+
+    server.listen(6363, () => {
+        console.log('Server running at http://localhost:6363/');
+    });
+
     createWindow()
 })
 
