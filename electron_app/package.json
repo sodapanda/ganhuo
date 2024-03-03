@@ -1,5 +1,5 @@
 {
-  "name": "electron_app",
+  "name": "ganhuo",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
@@ -9,7 +9,7 @@
     "package": "electron-forge package",
     "make": "electron-forge make"
   },
-  "author": "",
+  "author": "sodapanda",
   "license": "ISC",
   "devDependencies": {
     "@electron-forge/cli": "^7.3.0",
@@ -18,12 +18,11 @@
     "@electron-forge/maker-squirrel": "^7.3.0",
     "@electron-forge/maker-zip": "^7.3.0",
     "@electron-forge/plugin-auto-unpack-natives": "^7.3.0",
-    "active-win": "^8.2.1",
-    "electron": "^29.1.0"
+    "@electron-forge/plugin-fuses": "^7.3.0",
+    "electron": "^29.1.0",
+    "electron-squirrel-startup": "^1.0.0"
   },
   "dependencies": {
-    "@electron-forge/plugin-fuses": "^7.3.0",
-    "applescript": "^1.0.0",
-    "electron-squirrel-startup": "^1.0.0"
+    "active-win": "^8.2.1"
   }
 }

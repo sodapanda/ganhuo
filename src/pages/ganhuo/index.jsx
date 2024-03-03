@@ -98,6 +98,24 @@ export default function Ganhuo() {
 
     function callWorkDoneApi() {
         // todo 检查是不是调用过了 不用重复调用
+        fetch('http://192.168.2.102:7771/setIsDone?value=true', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
     }
 
     function getDataBase() {
