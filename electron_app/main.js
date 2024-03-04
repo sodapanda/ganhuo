@@ -7,6 +7,8 @@ const express = require('express');
 const badApp = ['com.tencent.xinWeChat', 'com.tdesktop.Telegram', 'com.colliderli.iina', 'com.apple.finder']
 const badWebsite = ['youtube.com', 'bilibili.com', 'twitter.com', 'xiaohongshu.com', 'zhihu.com', 'missav.com']
 
+let mTimerId = 0
+
 const createWindow = () => {
     const win = new BrowserWindow({
         width: 400,
@@ -31,30 +33,43 @@ const createWindow = () => {
 }
 
 app.whenReady().then(() => {
+    ipcMain.handle('startInterval', (event) => {
+        mTimerId = setInterval(async () => {
+            let sIsWorking = false
+            const active = await activeWindow({
+                accessibilityPermission: true,
+                screenRecordingPermission: true,
+            })
+
+            if (!active) {
+                sIsWorking = false
+            }
+
+            const url = active.url
+            if (url) {
+                const host = new URL(url).host
+                const isBadUrl = badWebsite.some(website => host.includes(website))
+                sIsWorking = !isBadUrl
+            } else {
+                const isBadApp = badApp.some(app => app === active.owner.bundleId)
+                sIsWorking = !isBadApp
+            }
+
+            const uptimeSeconds = os.uptime();
+
+            event.sender.send('onInterval', { isWorking: sIsWorking, nowUptime: uptimeSeconds })
+        }, 3000);
+        return true;
+    })
+
+    ipcMain.handle('stopInterval', () => {
+        clearInterval(mTimerId)
+        return true
+    })
+
     ipcMain.handle('uptime', () => {
         const uptimeSeconds = os.uptime();
         return uptimeSeconds
-    })
-
-    ipcMain.handle('isWorking', async () => {
-        const active = await activeWindow({
-            accessibilityPermission: true,
-            screenRecordingPermission: true,
-        })
-
-        if (!active) {
-            return false
-        }
-
-        const url = active.url
-        if (url) {
-            const host = new URL(url).host
-            const isBadUrl = badWebsite.some(website => host.includes(website))
-            return !isBadUrl
-        } else {
-            const isBadApp = badApp.some(app => app === active.owner.bundleId)
-            return !isBadApp
-        }
     })
 
     const server = express();

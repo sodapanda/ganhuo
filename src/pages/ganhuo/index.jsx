@@ -6,13 +6,16 @@ import moment from 'moment';
 
 export default function Ganhuo() {
     const lastTime = useRef(0)
-    const mTimerId = useRef(0)
 
     useEffect(() => {
         window.app.onLockScreen((value) => {
             console.log(`web get lock screen ${value}`)
 
             stopPolling()
+        })
+
+        window.app.onInterval((data) => {
+            dispatch({ type: 'tik', nowUptime: data.nowUptime, isWorking: data.isWorking })
         })
 
         const todayDuration = getTodayDuration();
@@ -73,26 +76,14 @@ export default function Ganhuo() {
     }, initState)
 
     async function startPolling() {
-        console.log('click')
         dispatch({ type: 'switch', mSwitch: 'on' })
         lastTime.current = await window.app.uptime();
-
-        mTimerId.current = setInterval(async () => {
-            const nowTime = await window.app.uptime();
-            const working = await window.app.isWorking();
-            // console.log(`干活:${working}`)
-            dispatch({ type: 'tik', nowUptime: nowTime, isWorking: working })
-        }, 3000)
+        await window.app.startInterval();
     }
 
-    function stopPolling() {
+    async function stopPolling() {
         dispatch({ type: 'switch', mSwitch: 'off' })
-        // lastTime.current = 0
-
-        if (mTimerId.current !== 0) {
-            clearInterval(mTimerId.current)
-            mTimerId.current = 0
-        }
+        await window.app.stopInterval()
     }
 
     function notifyToWork() {
