@@ -5,7 +5,7 @@ const activeWindow = require('active-win');
 const express = require('express');
 
 const badApp = ['com.tencent.xinWeChat', 'com.tdesktop.Telegram', 'com.colliderli.iina', 'com.apple.finder']
-const badWebsite = ['youtube.com', 'bilibili.com', 'twitter.com', 'xiaohongshu.com', 'zhihu.com', 'missav.com']
+const badWebsite = ['bilibili.com', 'twitter.com', 'xiaohongshu.com', 'zhihu.com', 'missav.com', 'twitch.tv']
 
 let mTimerId = 0
 

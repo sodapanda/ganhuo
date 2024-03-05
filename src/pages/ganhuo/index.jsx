@@ -195,7 +195,7 @@ export default function Ganhuo() {
                             isDone = true
                         }
                         return (
-                            <Indicator size={6} color="green" offset={-2} disabled={!isDone}>
+                            <Indicator color="green" position="middle-center" size={14} disabled={!isDone}>
                                 <div>{day}</div>
                             </Indicator>
                         );

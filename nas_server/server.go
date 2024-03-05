@@ -19,18 +19,17 @@ func main() {
 	go func() {
 		for {
 			now := time.Now()
-			nextMidnight := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, now.Location())
-			duration := nextMidnight.Sub(now)
-			// duration := 10 * time.Second
-			fmt.Println("sleep:")
-			fmt.Println(duration)
-			time.Sleep(duration)
+			hour := now.Hour()
+			if hour >= 0 && hour < 1 {
+				fmt.Println("Current time is between 0:00 and 1:00")
 
-			if !isDone {
-				removeRandomFile("/home/qishui/media/Backup/bxs/")
+				if !isDone {
+					removeRandomFile("/home/qishui/media/Backup/bxs/")
+				}
+
+				isDone = false
 			}
-
-			isDone = false
+			time.Sleep(time.Hour)
 		}
 	}()
 
